@@ -8,9 +8,14 @@ import {
   renderHandleShadow,
 } from "./rendering";
 
+type RotationStep = {
+  direction: "clockwise" | "counterclockwise";
+  rotations: number;
+};
+
 (async () => {
   const app = new Application();
-
+  const rotationPuzzle = new Set<RotationStep>();
   // init App
   await app.init({
     width: innerWidth,
@@ -23,6 +28,20 @@ import {
   app.stage.scale.set(1);
 
   initDevtools({ app });
+
+  for (let index = 0; index < 3; index++) {
+    let direction = randomNumber(1, 2);
+    let rotations = randomNumber(1, 9);
+    rotationPuzzle.add({
+      direction: direction === 1 ? "clockwise" : "counterclockwise",
+      rotations: rotations,
+    });
+  }
+
+  const consoleHint = Array.from(rotationPuzzle)
+    .map((value) => `${value.direction} ${value.rotations}`)
+    .join(", ");
+  console.log(consoleHint);
 
   // Bg
   app.stage.addChild(await renderBg());
@@ -63,4 +82,8 @@ function resizeApp(app: Application) {
     (screenWidth - newWidth) / 2,
     (screenHeight - newHeight) / 2
   );
+}
+
+function randomNumber(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
