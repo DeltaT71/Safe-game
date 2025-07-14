@@ -21,8 +21,9 @@ export async function renderDoor() {
   scaleSprite(sprite_door);
 
   // Adjust the position and size
-  sprite_door.anchor.set(0.47, 0.53);
-  sprite_door.scale.set(0.31);
+  sprite_door.scale.set(0.35);
+  sprite_door.x += 15;
+  sprite_door.y -= 20;
 
   return sprite_door;
 }
@@ -33,8 +34,9 @@ export async function renderHandle() {
   scaleSprite(sprite_handle);
 
   // Adjust the position and size
-  sprite_handle.anchor.set(0.54, 0.57);
-  sprite_handle.scale.set(0.31);
+  sprite_handle.x -= 15;
+  sprite_handle.y -= 20;
+  sprite_handle.scale.set(0.35);
 
   return sprite_handle;
 }
@@ -44,8 +46,9 @@ export async function renderHandleShadow() {
 
   scaleSprite(sprite_handleShadow);
   // Adjust the position and size
-  sprite_handleShadow.anchor.set(0.52, 0.54);
-  sprite_handleShadow.scale.set(0.31);
+  sprite_handleShadow.scale.set(0.35);
+  sprite_handleShadow.x -= 10;
+  sprite_handleShadow.y -= 10;
 
   return sprite_handleShadow;
 }

@@ -1,12 +1,19 @@
-import { Application } from "pixi.js";
+import { Application, Container, Sprite } from "pixi.js";
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from "./config";
 import { initDevtools } from "@pixi/devtools";
+import { PixiPlugin } from "gsap/PixiPlugin";
+import { gsap } from "gsap/gsap-core";
 import {
   renderBg,
   renderDoor,
   renderHandle,
   renderHandleShadow,
 } from "./rendering";
+
+gsap.registerPlugin(PixiPlugin);
+
+// For calculating the rotation in the handle animation.
+let currentRotation = 0;
 
 type RotationStep = {
   direction: "clockwise" | "counterclockwise";
@@ -16,6 +23,12 @@ type RotationStep = {
 (async () => {
   const app = new Application();
   const rotationPuzzle = new Set<RotationStep>();
+
+  const bg = await renderBg();
+  const door = await renderDoor();
+  const handle = await renderHandle();
+  const handleShadow = await renderHandleShadow();
+
   // init App
   await app.init({
     width: innerWidth,
@@ -41,16 +54,18 @@ type RotationStep = {
   const consoleHint = Array.from(rotationPuzzle)
     .map((value) => `${value.direction} ${value.rotations}`)
     .join(", ");
+
   console.log(consoleHint);
 
   // Bg
-  app.stage.addChild(await renderBg());
+  app.stage.addChild(bg);
   // Door
-  app.stage.addChild(await renderDoor());
-  //Handle Shadow
-  app.stage.addChild(await renderHandleShadow());
-  // Handle
-  app.stage.addChild(await renderHandle());
+  app.stage.addChild(door);
+  //Handle and Handle Shadow
+  app.stage.addChild(handleShadow);
+  app.stage.addChild(handle);
+  handleAnimation(door, handle, handleShadow);
+
   resizeApp(app);
 
   window.addEventListener("resize", () => {
@@ -86,4 +101,32 @@ function resizeApp(app: Application) {
 
 function randomNumber(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function handleAnimation(door: Sprite, handle: Sprite, handleShadow: Sprite) {
+  door.eventMode = "static";
+  door.cursor = "pointer";
+
+  door.on("mousedown", (event) => {
+    const localPos = event.getLocalPosition(door);
+
+    const direction = localPos.x > 0 ? "clockwise" : "counterclockwise";
+
+    rotateHandle(direction);
+  });
+
+  function rotateHandle(direction) {
+    const rotationStep = (60 * Math.PI) / 180;
+    const delta = direction === "clockwise" ? rotationStep : -rotationStep;
+
+    currentRotation += delta;
+
+    console.log(currentRotation);
+
+    gsap.to([handle, handleShadow], {
+      duration: 1,
+      rotation: currentRotation,
+      ease: "power1.Out",
+    });
+  }
 }
