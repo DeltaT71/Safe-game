@@ -14,12 +14,14 @@ gsap.registerPlugin(PixiPlugin);
 
 // For calculating the rotation in the handle animation.
 let currentRotation = 0;
-const rotationPuzzle = new Set<RotationStep>();
 
 type RotationStep = {
   direction: "clockwise" | "counterclockwise";
   rotations: number;
 };
+
+//Set storing the rotation combination that the player will need to do.
+let rotationPuzzle = new Set<RotationStep>();
 
 (async () => {
   const app = new Application();
@@ -27,6 +29,11 @@ type RotationStep = {
   const door = await renderDoor();
   const handle = await renderHandle();
   const handleShadow = await renderHandleShadow();
+
+  // Variables for safe unlock logic
+  let currentStep = 0;
+  let currentPosition = 0;
+  let isLocked = true;
 
   // init App
   await app.init({
@@ -50,13 +57,9 @@ type RotationStep = {
 
   generateRandomCombination();
 
-  let currentStep = 0;
-  let currentPosition = 0;
-  let isLocked = true;
+  let combination = Array.from(rotationPuzzle);
 
-  const combination = Array.from(rotationPuzzle);
-
-  const consoleHint = combination
+  let consoleHint = combination
     .map((value) => `${value.direction} ${value.rotations}`)
     .join(", ");
 
@@ -72,8 +75,20 @@ type RotationStep = {
     const expected = combination[currentStep];
 
     if (direction !== expected.direction) {
-      //todo logic for resetting the game
+      rotationPuzzle = new Set<RotationStep>();
+      generateRandomCombination();
+      combination = Array.from(rotationPuzzle);
+      currentStep = 0;
+      currentPosition = 0;
+
+      consoleHint = combination
+        .map((value) => `${value.direction} ${value.rotations}`)
+        .join(", ");
+
+      console.log(consoleHint);
+
       console.log("Nope");
+      doWrongCombinationAnimation(handle, handleShadow);
       return;
     }
 
@@ -152,8 +167,6 @@ function handleClick(door: Sprite, handle: Sprite, handleShadow: Sprite) {
     rotateHandle(direction);
   });
 
-  function checkCombination(direction: string) {}
-
   function rotateHandle(direction: string) {
     const rotationStep = (60 * Math.PI) / 180;
     const delta = direction === "clockwise" ? rotationStep : -rotationStep;
@@ -168,4 +181,18 @@ function handleClick(door: Sprite, handle: Sprite, handleShadow: Sprite) {
       ease: "power1.Out",
     });
   }
+}
+
+function doWrongCombinationAnimation(handle: Sprite, handleShadow: Sprite) {
+  const rotationStep = (3200 * Math.PI) / 180;
+  const randomRotationDirection =
+    randomNumber(1, 2) === 1 ? rotationStep : -rotationStep;
+
+  currentRotation += randomRotationDirection;
+
+  gsap.to([handle, handleShadow], {
+    duration: 3,
+    rotation: currentRotation,
+    ease: "power1.Out",
+  });
 }
