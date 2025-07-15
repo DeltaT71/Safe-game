@@ -77,21 +77,19 @@ let rotationPuzzle = new Set<RotationStep>();
 
   let combination = Array.from(rotationPuzzle);
 
-  let consoleHint = combination
-    .map((value) => `${value.direction} ${value.rotations}`)
-    .join(", ");
-
-  console.log(consoleHint);
+  displayCombinationInConsole(combination);
 
   door.eventMode = "static";
   door.cursor = "pointer";
   handleClick(door, handle, handleShadow);
 
+  // Handles the logic for the game loop (Should prob be abstracted in the helper functions)
   door.on("mousedown", (event) => {
     const localPos = event.getLocalPosition(door);
     const direction = localPos.x > 0 ? "clockwise" : "counterclockwise";
     const expected = combination[currentStep];
 
+    // If the player makes a wrong click we reset the game regenerate a new combination and start the wrong animations.
     if (direction !== expected.direction) {
       rotationPuzzle = new Set<RotationStep>();
       generateRandomCombination();
@@ -99,34 +97,30 @@ let rotationPuzzle = new Set<RotationStep>();
       currentStep = 0;
       currentPosition = 0;
 
-      consoleHint = combination
-        .map((value) => `${value.direction} ${value.rotations}`)
-        .join(", ");
-
-      console.log(consoleHint);
-
-      console.log("Nope");
+      displayCombinationInConsole(combination);
       doWrongCombinationAnimation(handle, handleShadow);
       return;
     }
 
+    // Incrementing positions based on correct clicks
     currentPosition++;
-    console.log(
-      `Current position: ${currentPosition}, Current step: ${currentStep}, combination Rotations: ${combination[currentStep].rotations}, combination direction ${combination[currentStep].direction}`
-    );
 
+    // If the player gets the first combination right we move to the next one.
     if (currentPosition === combination[currentStep].rotations) {
       currentStep++;
       currentPosition = 0;
-      console.log("Good job!");
     }
 
+    // If the player wins we fade out the closed Sprites
+    // fade in the open Sprites
+    // Remove the closed sprites children from the canvas to prevent players from clicking and to save resources.
     if (currentStep === combination.length && currentPosition === 0) {
-      console.log("You win");
       fadeOutClosedDoorElements(door, handle, handleShadow);
       removeClosedDoorElements(door, handle, handleShadow, app);
       fadeInOpenDoorElements(openDoor, openDoorShadow);
-      goldSparklesAnimationStart(sparkle, sparkle2, sparkle3);
+      sparklePulseAnimationStart(sparkle, 0);
+      sparklePulseAnimationStart(sparkle2, 0.3);
+      sparklePulseAnimationStart(sparkle3, 0.5);
     }
   });
 
@@ -165,6 +159,7 @@ function resizeApp(app: Application) {
   );
 }
 
+// Generates the random cumbination for each game.
 function generateRandomCombination() {
   for (let index = 0; index < 3; index++) {
     let direction = randomNumber(1, 2);
@@ -176,10 +171,12 @@ function generateRandomCombination() {
   }
 }
 
+// Random number generator fucntion for the Combinations
 function randomNumber(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+// Handles the click event on the door depending on where the player clicks and creates the Animation for it
 function handleClick(door: Sprite, handle: Sprite, handleShadow: Sprite) {
   door.on("mousedown", (event) => {
     const localPos = event.getLocalPosition(door);
@@ -195,8 +192,6 @@ function handleClick(door: Sprite, handle: Sprite, handleShadow: Sprite) {
 
     currentRotation += delta;
 
-    console.log(currentRotation);
-
     gsap.to([handle, handleShadow], {
       duration: 1,
       rotation: currentRotation,
@@ -205,6 +200,7 @@ function handleClick(door: Sprite, handle: Sprite, handleShadow: Sprite) {
   }
 }
 
+// Does the animation for the wrong input during the safe unlocking.
 function doWrongCombinationAnimation(handle: Sprite, handleShadow: Sprite) {
   const rotationStep = (3200 * Math.PI) / 180;
   const randomRotationDirection =
@@ -218,7 +214,7 @@ function doWrongCombinationAnimation(handle: Sprite, handleShadow: Sprite) {
     ease: "power1.Out",
   });
 }
-
+// Fades out the closed closed door handle and handle shadow Sprites
 function fadeOutClosedDoorElements(
   door: Sprite,
   handle: Sprite,
@@ -231,6 +227,7 @@ function fadeOutClosedDoorElements(
   });
 }
 
+// Removes the closed door handle and handle shadow Sprites from the Stage
 function removeClosedDoorElements(
   door: Sprite,
   handle: Sprite,
@@ -242,6 +239,7 @@ function removeClosedDoorElements(
   app.stage.removeChild(handleShadow);
 }
 
+// Fades in the open door and open door shadow Sprites
 function fadeInOpenDoorElements(openDoor: Sprite, openDoorShadow: Sprite) {
   gsap.to([openDoor, openDoorShadow], {
     duration: 2,
@@ -249,7 +247,16 @@ function fadeInOpenDoorElements(openDoor: Sprite, openDoorShadow: Sprite) {
     ease: "power1.Out",
   });
 }
+// Takes the current Set combination and displays it in the console.
+function displayCombinationInConsole(combination: RotationStep[]) {
+  let consoleHint = combination
+    .map((value) => `${value.direction} ${value.rotations}`)
+    .join(", ");
 
+  console.log(consoleHint);
+}
+
+// Adjusts each sparkle to a different position after rendering them.
 function adjustSparklePositions(
   sparkle: Sprite,
   sparkle2: Sprite,
@@ -262,40 +269,16 @@ function adjustSparklePositions(
   sparkle3.x -= 40;
 }
 
-function goldSparklesAnimationStart(
-  sparkle: Sprite,
-  sparkle2: Sprite,
-  sparkle3: Sprite
-) {
+// Makes the sparkle pulse in and out animation.
+function sparklePulseAnimationStart(sparkle: Sprite, delay: number = 0) {
   gsap.to(sparkle, {
     duration: 2,
     repeat: -1,
-    ease: "power1.inOut",
-    scale: 0.5,
-    rotation: 1.7,
-    alpha: 1,
     yoyo: true,
-  });
-
-  gsap.to(sparkle2, {
-    duration: 2,
-    repeat: -1,
     ease: "power1.inOut",
     scale: 0.5,
     rotation: 1.4,
     alpha: 1,
-    yoyo: true,
-    delay: 0.3,
-  });
-
-  gsap.to(sparkle3, {
-    duration: 2,
-    repeat: -1,
-    ease: "power1.inOut",
-    scale: 0.5,
-    rotation: 1,
-    alpha: 1,
-    yoyo: true,
-    delay: 0.6,
+    delay,
   });
 }

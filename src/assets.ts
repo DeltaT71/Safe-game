@@ -1,5 +1,6 @@
 import { Assets } from "pixi.js";
 
+// Loads all game assets and returns them in an object.
 export async function loadAssets() {
   await Assets.load([
     "/images/assets/bg.png",
