@@ -112,6 +112,9 @@ let rotationPuzzle = new Set<RotationStep>();
     if (currentStep === combination.length && currentPosition === 0) {
       console.log("You win");
       //todo logic for opening the door and showing the gold
+      fadeOutClosedDoorElements(door, handle, handleShadow);
+      removeClosedDoorElements(door, handle, handleShadow, app);
+      fadeInOpenDoorElements(openDoor, openDoorShadow);
     }
   });
 
@@ -200,6 +203,37 @@ function doWrongCombinationAnimation(handle: Sprite, handleShadow: Sprite) {
   gsap.to([handle, handleShadow], {
     duration: 3,
     rotation: currentRotation,
+    ease: "power1.Out",
+  });
+}
+
+function fadeOutClosedDoorElements(
+  door: Sprite,
+  handle: Sprite,
+  handleShadow: Sprite
+) {
+  gsap.to([door, handle, handleShadow], {
+    duration: 1,
+    alpha: 0,
+    ease: "power1.Out",
+  });
+}
+
+function removeClosedDoorElements(
+  door: Sprite,
+  handle: Sprite,
+  handleShadow: Sprite,
+  app: Application
+) {
+  app.stage.removeChild(door);
+  app.stage.removeChild(handle);
+  app.stage.removeChild(handleShadow);
+}
+
+function fadeInOpenDoorElements(openDoor: Sprite, openDoorShadow: Sprite) {
+  gsap.to([openDoor, openDoorShadow], {
+    duration: 1,
+    alpha: 1,
     ease: "power1.Out",
   });
 }

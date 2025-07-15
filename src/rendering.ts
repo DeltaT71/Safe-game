@@ -73,8 +73,8 @@ export async function renderOpenDoorShadow() {
   scaleSprite(sprite_doorOpenShadow);
   // Adjust the position and size
   sprite_doorOpenShadow.scale.set(0.35);
-  sprite_doorOpenShadow.x += 540;
-  sprite_doorOpenShadow.y += 50;
+  sprite_doorOpenShadow.x += 535;
+  sprite_doorOpenShadow.y += 20;
 
   return sprite_doorOpenShadow;
 }
