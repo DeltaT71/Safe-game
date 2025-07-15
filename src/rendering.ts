@@ -53,6 +53,32 @@ export async function renderHandleShadow() {
   return sprite_handleShadow;
 }
 
+export async function renderOpenDoor() {
+  const textuer_openDoor = (await loadAssets()).openDoor;
+  const sprite_openDoor = Sprite.from(textuer_openDoor);
+
+  scaleSprite(sprite_openDoor);
+  // Adjust the position and size
+  sprite_openDoor.scale.set(0.36);
+  sprite_openDoor.x += 510;
+  sprite_openDoor.y -= 25;
+
+  return sprite_openDoor;
+}
+
+export async function renderOpenDoorShadow() {
+  const textuer_openDoorShadow = (await loadAssets()).doorOpenShadow;
+  const sprite_doorOpenShadow = Sprite.from(textuer_openDoorShadow);
+
+  scaleSprite(sprite_doorOpenShadow);
+  // Adjust the position and size
+  sprite_doorOpenShadow.scale.set(0.35);
+  sprite_doorOpenShadow.x += 540;
+  sprite_doorOpenShadow.y += 50;
+
+  return sprite_doorOpenShadow;
+}
+
 //Keeps the aspect ratio of Sprites and anchors them to the middle
 function scaleSprite(sprite: Sprite) {
   sprite.scale.set(1);

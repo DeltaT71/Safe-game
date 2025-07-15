@@ -1,4 +1,4 @@
-import { Application, Container, Sprite } from "pixi.js";
+import { Application, Sprite } from "pixi.js";
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from "./config";
 import { initDevtools } from "@pixi/devtools";
 import { PixiPlugin } from "gsap/PixiPlugin";
@@ -8,6 +8,8 @@ import {
   renderDoor,
   renderHandle,
   renderHandleShadow,
+  renderOpenDoor,
+  renderOpenDoorShadow,
 } from "./rendering";
 
 gsap.registerPlugin(PixiPlugin);
@@ -29,11 +31,12 @@ let rotationPuzzle = new Set<RotationStep>();
   const door = await renderDoor();
   const handle = await renderHandle();
   const handleShadow = await renderHandleShadow();
+  const openDoor = await renderOpenDoor();
+  const openDoorShadow = await renderOpenDoorShadow();
 
   // Variables for safe unlock logic
   let currentStep = 0;
   let currentPosition = 0;
-  let isLocked = true;
 
   // init App
   await app.init({
@@ -46,14 +49,17 @@ let rotationPuzzle = new Set<RotationStep>();
   document.body.appendChild(app.canvas);
   app.stage.scale.set(1);
 
+  openDoorShadow.alpha = 0;
+  openDoor.alpha = 0;
+
   initDevtools({ app });
-  // Bg
+  // Add the Assets needed
   app.stage.addChild(bg);
-  // Door
   app.stage.addChild(door);
-  //Handle and Handle Shadow
   app.stage.addChild(handleShadow);
   app.stage.addChild(handle);
+  app.stage.addChild(openDoorShadow);
+  app.stage.addChild(openDoor);
 
   generateRandomCombination();
 
@@ -104,7 +110,6 @@ let rotationPuzzle = new Set<RotationStep>();
     }
 
     if (currentStep === combination.length && currentPosition === 0) {
-      isLocked = false;
       console.log("You win");
       //todo logic for opening the door and showing the gold
     }
@@ -116,6 +121,8 @@ let rotationPuzzle = new Set<RotationStep>();
     resizeApp(app);
   });
 })();
+
+// HELPER FUNCTIONS FROM THIS POINT ON
 
 //Resize the canvas to the window size
 function resizeApp(app: Application) {
