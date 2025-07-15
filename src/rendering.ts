@@ -79,6 +79,19 @@ export async function renderOpenDoorShadow() {
   return sprite_doorOpenShadow;
 }
 
+export async function renderGoldSparkle() {
+  const textuer_sparkle = (await loadAssets()).blink;
+  const sprite_sparkle = Sprite.from(textuer_sparkle);
+
+  scaleSprite(sprite_sparkle);
+  // Adjust the position and size
+  sprite_sparkle.scale.set(0.35);
+  sprite_sparkle.x += 0;
+  sprite_sparkle.y += 0;
+
+  return sprite_sparkle;
+}
+
 //Keeps the aspect ratio of Sprites and anchors them to the middle
 function scaleSprite(sprite: Sprite) {
   sprite.scale.set(1);

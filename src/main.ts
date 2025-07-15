@@ -6,6 +6,7 @@ import { gsap } from "gsap/gsap-core";
 import {
   renderBg,
   renderDoor,
+  renderGoldSparkle,
   renderHandle,
   renderHandleShadow,
   renderOpenDoor,
@@ -33,6 +34,9 @@ let rotationPuzzle = new Set<RotationStep>();
   const handleShadow = await renderHandleShadow();
   const openDoor = await renderOpenDoor();
   const openDoorShadow = await renderOpenDoorShadow();
+  const sparkle = await renderGoldSparkle();
+  const sparkle2 = await renderGoldSparkle();
+  const sparkle3 = await renderGoldSparkle();
 
   // Variables for safe unlock logic
   let currentStep = 0;
@@ -52,6 +56,12 @@ let rotationPuzzle = new Set<RotationStep>();
   openDoorShadow.alpha = 0;
   openDoor.alpha = 0;
 
+  door.alpha = 0;
+  handle.alpha = 0;
+  handleShadow.alpha = 0;
+
+  adjustSparklePositions(sparkle, sparkle2, sparkle3);
+
   initDevtools({ app });
   // Add the Assets needed
   app.stage.addChild(bg);
@@ -60,6 +70,9 @@ let rotationPuzzle = new Set<RotationStep>();
   app.stage.addChild(handle);
   app.stage.addChild(openDoorShadow);
   app.stage.addChild(openDoor);
+  app.stage.addChild(sparkle);
+  app.stage.addChild(sparkle2);
+  app.stage.addChild(sparkle3);
 
   generateRandomCombination();
 
@@ -236,4 +249,16 @@ function fadeInOpenDoorElements(openDoor: Sprite, openDoorShadow: Sprite) {
     alpha: 1,
     ease: "power1.Out",
   });
+}
+
+function adjustSparklePositions(
+  sparkle: Sprite,
+  sparkle2: Sprite,
+  sparkle3: Sprite
+) {
+  sparkle.x += 100;
+  sparkle.y += 70;
+  sparkle2.x -= 150;
+  sparkle2.y += 120;
+  sparkle3.x -= 40;
 }
