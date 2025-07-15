@@ -14,6 +14,7 @@ gsap.registerPlugin(PixiPlugin);
 
 // For calculating the rotation in the handle animation.
 let currentRotation = 0;
+const rotationPuzzle = new Set<RotationStep>();
 
 type RotationStep = {
   direction: "clockwise" | "counterclockwise";
@@ -22,8 +23,6 @@ type RotationStep = {
 
 (async () => {
   const app = new Application();
-  const rotationPuzzle = new Set<RotationStep>();
-
   const bg = await renderBg();
   const door = await renderDoor();
   const handle = await renderHandle();
@@ -41,22 +40,6 @@ type RotationStep = {
   app.stage.scale.set(1);
 
   initDevtools({ app });
-
-  for (let index = 0; index < 3; index++) {
-    let direction = randomNumber(1, 2);
-    let rotations = randomNumber(1, 9);
-    rotationPuzzle.add({
-      direction: direction === 1 ? "clockwise" : "counterclockwise",
-      rotations: rotations,
-    });
-  }
-
-  const consoleHint = Array.from(rotationPuzzle)
-    .map((value) => `${value.direction} ${value.rotations}`)
-    .join(", ");
-
-  console.log(consoleHint);
-
   // Bg
   app.stage.addChild(bg);
   // Door
@@ -64,7 +47,53 @@ type RotationStep = {
   //Handle and Handle Shadow
   app.stage.addChild(handleShadow);
   app.stage.addChild(handle);
-  handleAnimation(door, handle, handleShadow);
+
+  generateRandomCombination();
+
+  let currentStep = 0;
+  let currentPosition = 0;
+  let isLocked = true;
+
+  const combination = Array.from(rotationPuzzle);
+
+  const consoleHint = combination
+    .map((value) => `${value.direction} ${value.rotations}`)
+    .join(", ");
+
+  console.log(consoleHint);
+
+  door.eventMode = "static";
+  door.cursor = "pointer";
+  handleClick(door, handle, handleShadow);
+
+  door.on("mousedown", (event) => {
+    const localPos = event.getLocalPosition(door);
+    const direction = localPos.x > 0 ? "clockwise" : "counterclockwise";
+    const expected = combination[currentStep];
+
+    if (direction !== expected.direction) {
+      //todo logic for resetting the game
+      console.log("Nope");
+      return;
+    }
+
+    currentPosition++;
+    console.log(
+      `Current position: ${currentPosition}, Current step: ${currentStep}, combination Rotations: ${combination[currentStep].rotations}, combination direction ${combination[currentStep].direction}`
+    );
+
+    if (currentPosition === combination[currentStep].rotations) {
+      currentStep++;
+      currentPosition = 0;
+      console.log("Good job!");
+    }
+
+    if (currentStep === combination.length && currentPosition === 0) {
+      isLocked = false;
+      console.log("You win");
+      //todo logic for opening the door and showing the gold
+    }
+  });
 
   resizeApp(app);
 
@@ -99,14 +128,22 @@ function resizeApp(app: Application) {
   );
 }
 
+function generateRandomCombination() {
+  for (let index = 0; index < 3; index++) {
+    let direction = randomNumber(1, 2);
+    let rotations = randomNumber(1, 9);
+    rotationPuzzle.add({
+      direction: direction === 1 ? "clockwise" : "counterclockwise",
+      rotations: rotations,
+    });
+  }
+}
+
 function randomNumber(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function handleAnimation(door: Sprite, handle: Sprite, handleShadow: Sprite) {
-  door.eventMode = "static";
-  door.cursor = "pointer";
-
+function handleClick(door: Sprite, handle: Sprite, handleShadow: Sprite) {
   door.on("mousedown", (event) => {
     const localPos = event.getLocalPosition(door);
 
@@ -115,7 +152,9 @@ function handleAnimation(door: Sprite, handle: Sprite, handleShadow: Sprite) {
     rotateHandle(direction);
   });
 
-  function rotateHandle(direction) {
+  function checkCombination(direction: string) {}
+
+  function rotateHandle(direction: string) {
     const rotationStep = (60 * Math.PI) / 180;
     const delta = direction === "clockwise" ? rotationStep : -rotationStep;
 
