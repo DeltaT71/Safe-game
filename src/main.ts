@@ -55,24 +55,23 @@ let rotationPuzzle = new Set<RotationStep>();
 
   openDoorShadow.alpha = 0;
   openDoor.alpha = 0;
-
-  door.alpha = 0;
-  handle.alpha = 0;
-  handleShadow.alpha = 0;
+  sparkle.alpha = 0;
+  sparkle2.alpha = 0;
+  sparkle3.alpha = 0;
 
   adjustSparklePositions(sparkle, sparkle2, sparkle3);
 
   initDevtools({ app });
   // Add the Assets needed
   app.stage.addChild(bg);
+  app.stage.addChild(sparkle);
+  app.stage.addChild(sparkle2);
+  app.stage.addChild(sparkle3);
   app.stage.addChild(door);
   app.stage.addChild(handleShadow);
   app.stage.addChild(handle);
   app.stage.addChild(openDoorShadow);
   app.stage.addChild(openDoor);
-  app.stage.addChild(sparkle);
-  app.stage.addChild(sparkle2);
-  app.stage.addChild(sparkle3);
 
   generateRandomCombination();
 
@@ -124,10 +123,10 @@ let rotationPuzzle = new Set<RotationStep>();
 
     if (currentStep === combination.length && currentPosition === 0) {
       console.log("You win");
-      //todo logic for opening the door and showing the gold
       fadeOutClosedDoorElements(door, handle, handleShadow);
       removeClosedDoorElements(door, handle, handleShadow, app);
       fadeInOpenDoorElements(openDoor, openDoorShadow);
+      goldSparklesAnimationStart(sparkle, sparkle2, sparkle3);
     }
   });
 
@@ -226,7 +225,7 @@ function fadeOutClosedDoorElements(
   handleShadow: Sprite
 ) {
   gsap.to([door, handle, handleShadow], {
-    duration: 1,
+    duration: 2,
     alpha: 0,
     ease: "power1.Out",
   });
@@ -245,7 +244,7 @@ function removeClosedDoorElements(
 
 function fadeInOpenDoorElements(openDoor: Sprite, openDoorShadow: Sprite) {
   gsap.to([openDoor, openDoorShadow], {
-    duration: 1,
+    duration: 2,
     alpha: 1,
     ease: "power1.Out",
   });
@@ -261,4 +260,42 @@ function adjustSparklePositions(
   sparkle2.x -= 150;
   sparkle2.y += 120;
   sparkle3.x -= 40;
+}
+
+function goldSparklesAnimationStart(
+  sparkle: Sprite,
+  sparkle2: Sprite,
+  sparkle3: Sprite
+) {
+  gsap.to(sparkle, {
+    duration: 2,
+    repeat: -1,
+    ease: "power1.inOut",
+    scale: 0.5,
+    rotation: 1.7,
+    alpha: 1,
+    yoyo: true,
+  });
+
+  gsap.to(sparkle2, {
+    duration: 2,
+    repeat: -1,
+    ease: "power1.inOut",
+    scale: 0.5,
+    rotation: 1.4,
+    alpha: 1,
+    yoyo: true,
+    delay: 0.3,
+  });
+
+  gsap.to(sparkle3, {
+    duration: 2,
+    repeat: -1,
+    ease: "power1.inOut",
+    scale: 0.5,
+    rotation: 1,
+    alpha: 1,
+    yoyo: true,
+    delay: 0.6,
+  });
 }
